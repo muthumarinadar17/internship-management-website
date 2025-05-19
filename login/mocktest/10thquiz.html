@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Second half</title>
+    <link rel="stylesheet" href="mocktest.css">
+    <!-- <script src="https://kit.fontawesome.com/a076d05399.js"></script> -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">    
+</head>
+<body>
+   
+<!-- Info box -->
+    <div class="info_box activeInfo">
+        <div class="info_title"> 
+            <span> Some Rules for the test </span>
+        </div>
+        <div class="info_list">
+            <div class="info"> 1. You will have only <span>60 seconds</span> per each question </div>
+            <div class="info"> 2. Once you select you answer, you can't reselect</div>
+            <div class="info"> 3. You can't select any option once time goes off</div>
+            <div class="info"> 4. You can't exit from the test while you are playing</div>
+            <div class="info"> 5. You'll get points on the basis of your correct answers</div>
+        </div>
+        <div class="buttons">
+            <button class="quit" onclick="exitQuiz()">Exit Quiz</button>
+            <button class="restart" type="button">Continue</button>
+        </div>
+    </div>
+
+    <!-- Test Box -->
+     <div class="quiz_box">
+        <header>
+            <div class="title"> Verification of Truth </div>
+            <div class="timer">
+                <div class="time_text">Time Left</div>
+                <div class="timer_sec">60</div>
+
+            </div>
+            <div class="time_line"></div>
+        </header>
+        <section>
+            <div class="quiz_text">
+                <!-- <span> What does HTML stand for?</span> -->
+            </div>
+            <div class="option_list">
+                
+            </div>
+        </section>
+
+        <!-- Quiz box footer -->
+        <footer>
+            <div class="total_que">
+                <!-- <span><p>2</p> Of <p>5</p>Questions</span> -->
+            </div>
+            <button class="next_btn"> Next Que</button>
+        </footer>
+     </div>
+
+     <!-- Result Box  -->
+      <div class="result_box">
+        <div class="icon">
+            <i class="fa fa-crown"></i>
+        </div>
+        <div class="complete_text"> You've Completed the Test!</div>
+        <div class="score_text">
+            <!-- <span> and sorry, You get only <p> 2</p> out of <p>5</p></span> -->
+        </div>
+        <div class="buttons">
+            <button class="restart">Replay Test</button>
+            <button class="quit"> Quit Quiz</button>
+        </div>
+      </div>
+    <!-- </div> -->
+
+
+<script>
+
+
+    //getting all required elements
+const start_btn = document.querySelector(".start_btn button");
+const info_box = document.querySelector(".info_box");
+const exit_btn = info_box.querySelector(".buttons .quit");
+const continue_btn = document.querySelector(".info_box .restart");
+const quiz_box = document.querySelector(".quiz_box");
+const option_list = document.querySelector(".option_list");
+const timeCount = quiz_box.querySelector(".timer .timer_sec");
+const timeLine = quiz_box.querySelector("header .time_line");
+const timeOff = quiz_box.querySelector("header .time_text");
+
+
+
+function exitQuiz(){
+    window.location.href = 'Lmocktest.html';
+}
+
+// if continue button clicked
+ continue_btn.onclick = () => {
+	console.log("continue button clicked");
+    info_box.classList.remove("activeInfo");   // hide the info box
+ quiz_box.classList.add("activeQuiz");   // show the quiz box
+    showQuestions(0);
+    queCounter(1);
+    startTimer(60);
+    startTimerLine(0);
+};
+ 
+let que_count = 0;
+let que_numb = 1;
+let counter;
+let counterLine;
+let timeValue=60;
+let widthValue = 0;
+let userScore = 0;
+
+const next_btn = quiz_box.querySelector(".next_btn");
+const result_box = document.querySelector(".result_box");
+const restart_quiz = result_box.querySelector(".buttons .restart");
+const quit_quiz = result_box.querySelector(".buttons .quit");
+
+restart_quiz.onclick = ()=>{
+    quiz_box.classList.add("activeQuiz");
+    result_box.classList.remove("activeResult");
+    que_count = 0;
+    que_numb = 1;
+    timeValue=60;
+    widthValue = 0;
+    userScore = 0;
+    showQuestions(que_count);
+    queCounter(que_numb);
+    clearInterval(counter);
+    startTimer(timeValue);
+    clearInterval(counterLine);
+    startTimerLine(widthValue);
+    next_btn.style.display = "none";
+    timeOff.textContent = "Time Left";
+}
+
+// quit button task assigning
+quit_quiz.onclick = ()=>{
+    //window.location.reload();
+    window.location.href = 'Lmocktest.html';
+}
+
+// if next button clicked
+next_btn.onclick = ()=>{
+    if(que_count < questions.length - 1){
+        que_count++;
+        que_numb++;
+    showQuestions(que_count);
+    queCounter(que_numb);
+    clearInterval(counter);
+    startTimer(timeValue);
+    clearInterval(counterLine);
+    startTimerLine(widthValue);
+    next_btn.style.display = "none";
+    timeOff.textContent = "Time Left";
+    }
+    else{
+        clearInterval(counter);
+        clearInterval(counterLine);
+        console.log("Question completed");
+        showResultBox();
+    }
+}
+
+//getting question and optiions from array
+function showQuestions(index){
+    const que_text = document.querySelector(".quiz_text");
+    
+    let que_tag = '<span>'+questions[index].numb + ". "+ questions[index].question +'</span>';
+    let option_tag = '<div class="option">'+ questions[index].options[0] +'<span></span></div>'
+                    + '<div class="option">'+ questions[index].options[1] +'<span></span></div>'
+                    + '<div class="option">'+ questions[index].options[2] +'<span></span></div>'
+                    + '<div class="option">'+ questions[index].options[3] +'<span></span></div>';
+    que_text.innerHTML = que_tag;
+    option_list.innerHTML = option_tag;
+    const option = option_list.querySelectorAll(".option");
+    option.forEach(option => {
+        option.setAttribute("onclick","optionSelected(this)");
+    });
+}
+
+let tickIcon = '<div class="icon tick"><i class="fa fa-check"></i></div>';
+let crossIcon = '<div class="icon cross"> <i class="fa fa-times"></i></div>';
+
+function optionSelected(answer){
+    clearInterval(counter);
+    clearInterval(counterLine);
+    let userAns = answer.textContent;
+    let correctAns = questions[que_count].answer;
+    let alloptions = option_list.children.length;
+    if(userAns == correctAns) {
+        userScore += 1;
+        console.log(userScore);
+        answer.classList.add("correct");
+        console.log("Answer is correct");     
+        answer.insertAdjacentHTML("beforeend",tickIcon);
+    } else{
+        answer.classList.add("incorrect");
+        console.log("Answer is wrong");
+        answer.insertAdjacentHTML("beforeend",crossIcon);
+
+        //if answers is incorrect then automatically selected the correct answer
+        for (let i = 0; i < alloptions; i++) {
+            if(option_list.children[i].textContent == correctAns){
+                option_list.children[i].setAttribute("class","option correct");
+                option_list.children[i].insertAdjacentHTML("beforeend",tickIcon);
+            }
+            
+        }
+    }
+    //once user selected disabled all option
+    for (let i = 0; i < alloptions; i++) {
+        option_list.children[i].classList.add("disabled");
+        
+    }
+    next_btn.style.display = "block";
+}
+
+function showResultBox(){
+    info_box.classList.remove("activeInfo");   // hide the info box
+    quiz_box.classList.remove("activeQuiz");   // hide the quiz box
+    result_box.classList.add("activeResult");   // show the info box
+    const scoreText = result_box.querySelector(".score_text");
+    if(userScore > 3){
+        let scoreTag = '<span> and Congrats!!, You get <p>'+ userScore +'</p> out of <p>'+ questions.length +'</p></span>';
+        scoreText.innerHTML = scoreTag;
+    }
+    else if(userScore > 1){
+        let scoreTag = '<span> and nice, You get <p>'+ userScore +'</p> out of <p>'+ questions.length +'</p></span>';
+        scoreText.innerHTML = scoreTag;
+    }
+    else{
+        let scoreTag = '<span> and sorry, You get only <p>'+ userScore +'</p> out of <p>'+ questions.length +'</p></span>';
+        scoreText.innerHTML = scoreTag;
+    }
+}
+
+// for the time count down
+function startTimer(time){
+    counter = setInterval(timer, 1000); 
+    function timer(){
+        timeCount.textContent = time;
+        time--;
+        if(time < 9){
+            let addzero = timeCount.textContent;
+            timeCount.textContent = "0" + addzero;
+        }
+        if(time < 0){
+            clearInterval(counter);
+            timeCount.textContent = "00";
+            timeOff.textContent = "Time Off";
+
+            let correctAns = questions[que_count].answer;
+            let alloptions = option_list.children.length;
+
+            for (let i = 0; i < alloptions; i++) {
+                if(option_list.children[i].textContent == correctAns){
+                    option_list.children[i].setAttribute("class","option correct");
+                    option_list.children[i].insertAdjacentHTML("beforeend",tickIcon);
+                }
+                
+            }
+            for (let i = 0; i < alloptions; i++) {
+                option_list.children[i].classList.add("disabled");
+                
+            }
+            next_btn.style.display = "block";
+        }
+    }
+}
+
+function startTimerLine(time){
+    counterLine = setInterval(timer, 94);  //29
+    function timer(){
+        time += 1;
+        timeLine.style.width = time + "px";
+        if(time > 649){
+            clearInterval(counterLine);
+        }
+    }
+}
+
+function queCounter(index){
+    const bottom_ques_counter = quiz_box.querySelector(".total_que");
+    let totalQuestionTag = '<span><p>'+ index +'</p> Of <p>'+ questions.length +'</p>Questions</span>';
+    bottom_ques_counter.innerHTML = totalQuestionTag;
+}
+
+
+
+
+
+
+document.addEventListener("DOMContentLoaded", function () {
+    let quit_quiz = document.querySelector(".result_box .quit");
+
+    if (quit_quiz) {
+        quit_quiz.addEventListener("click", function () {
+            let score = calculateScore();
+            let user_email = localStorage.getItem("userEmail");
+            let test_name = localStorage.getItem("lastAttemptedTest");
+            let test_type = localStorage.getItem("lastAttemptedTestType");
+            let data_type = localStorage.getItem("lastAttemptedTestDataType"); // Retrieve data type
+
+            if (!user_email) {
+                alert("User email not found. Please log in again.");
+                return;
+            }
+
+            fetch("store_score.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    email: user_email,
+                    test_name: test_name,
+                    test_type: test_type,
+                    data_type: data_type, // Send Data Type
+                    score: score.correct,
+                    total_questions: score.total,
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = "Lmocktest.html";
+                } else {
+                    alert("Error saving score!");
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        });
+    }
+});
+
+function calculateScore() {
+    console.log("Calculating score..."); // Debugging
+    return { correct: userScore, total: questions.length };
+}
+
+
+// creating an array and passing the number, questions, options and answers
+let questions = [
+    {
+        numb: 1,
+        question: "A song always has ",
+        answer: "Word",
+        options: [
+            "Word",
+            "Chorus",
+            "Musician",
+            "Tymbal",
+
+        ]
+
+    },
+    {
+        numb: 2,
+        question: "Yesterday I saw an ice cube which had already melted due to heat of a nearby furnace.",
+        answer:  "Never",
+        options: [
+            "Always",
+            "Never",
+            "Often",
+            "Sometimes",
+
+        ]
+
+    },
+    {
+        numb: 3,
+        question: "Which one of the following a 'Drama' must have " ,
+        answer: "Story", 
+        options: [
+            "Actors",
+            "Story",
+            "Sets",
+            "Director",
+
+        ]
+
+    },
+    {
+        numb: 4,
+        question: "Which one of the following is always found in 'Wonder'? ",
+        answer:  "Astonishment",
+        options: [
+            "Crowd",
+            "Lumber",
+            "Astonishment",
+            "Rustic",
+
+        ]
+
+    },
+    {
+        numb: 5,
+        question: "A boy is sitting at the back of a car. When the driver suddenly starts moving the car(in forward direction), the boy experiences a backward force? ",
+        answer:   "Always",
+        options: [
+            "Always",
+            "Never",
+            "Often",
+            "Sometimes",
+
+        ]
+
+    },
+
+];
+
+
+
+</script>
+
+      <!-- <script src="mocktestjs/mocktest.js"></script> -->
+     <!-- <script src="mocktestjs/question.js"></script>  -->
+</body>
+</html>
